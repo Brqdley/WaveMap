@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: rgba(0, 0, 0, 10);
+      background-image: url('surf.jpg');
+      background-size: 100%;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    #legend {
+      position: absolute;
+      top: 800px;
+      right: 870px;
+      text-align: right;
+      max-width: 200px;
+      z-index: 1000;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .marker {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+
+    .blueRed {
+      background: linear-gradient(to right, blue 50%, red 50%);
+    }
+    .waveHeight {
+      background-color: transparent;
+      border: 2px solid black;
+    }
+
+
+    #d1 {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    #d2 {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    #d3 {
+      text-align: center;
+    }
+
+    #slider-container {
+      width: 40%;
+      font-size: 30px;
+      margin: 20px auto;
+      margin-top: 10px;
+    }
+
+    #visualization {
+      width: 40%;
+      height: 600px;
+      margin: 0 auto;
+    }
+
+    #worldMap {
+      width: 40%;
+      height: 600px;
+      margin: auto;
+      z-index: 1000;
+    }
+
+    .marker-icon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 6rem;
+    }
+    .noUi-horizontal .noUi-handle, .noUi-vertical .noUi-handle{
+    background: papayawhip;
+    }
+
+    h3 {
+      display: inline-block;
+      margin-bottom: 10px;
+      margin-left: 40px;
+      margin-right: 30px;
+    }
+
+    p1 {
+      font-size: 30px;
+    }
+
+    p3 {
+      font-size: 30px;
+    }
+
+    p4 {
+      font-size: 20px;
+    }
+
+
+    #current-date {
+      text-align: center;
+    }
+
+    #bar-chart {
+      text-align: center;
+    }
+
+
+    #buoyDropdown {
+      font-size: 25px;
+    }
+
+    #hourDropdown {
+      margin-top: 30px;
+      font-size: 25px;
+    }
+
+    label[for="hourDropdown"] {
+      font-size: 30px;
+    }
+    label[for="buoyDropdown"] {
+      font-size: 30px;
+    }
+
+    #white-rectangle {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      height: 100%;
+      background-color: ghostwhite;
+      z-index: -1;
+    }
+
+
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+</head>
+<body>
+  <div id="white-rectangle"></div>
+  <div id="d1">
+    <h1> Wave Height Across <br> Southern California</h1>
+    <p1>By: Bradley Nathanson</p1>
+  </div>
+  <div id="d2">
+    <p3>As someone who has lived near the Southern California coast my entire life, 
+      I was curious to know the trends of the wave heights.
+      Using data from CDIP, which is run by Scripps at UCSD,
+      I could display yearly trends. I decided to show the trends of 2021 for consistency and accuracy.
+      <br>
+
+    </p3>
+  </div>
+  <br>
+ 
+  <div id = "d3">
+    <br>
+    <br>
+    <p4> Play with the slider!
+    </p4>
+    <div id="slider-container"></div>
+    <br>
+    <br>
+
+    <div id="legend">
+      <h3>Legend</h3>
+      <div class="legend-item">
+        <div class="marker blueRed"></div>
+        <span>Air Temp</span>
+      </div>
+      <div class="legend-item">
+        <div class="marker waveHeight"></div>
+        <span>Wave Height</span>
+      </div>
+    </div>
+    <p3>Visualization of Wave Height and Air Temp Over 2021</p3>
+    <div id="visualization"></div>
+    <label for="hourDropdown">Select Hour:</label>
+    <select id="hourDropdown">
+      <option value="0">12:00 AM</option>
+      <option value="1">1:00 AM</option>
+      <option value="2">2:00 AM</option>
+      <option value="3">3:00 AM</option>
+      <option value="4">4:00 AM</option>
+      <option value="5">5:00 AM</option>
+      <option value="6">6:00 AM</option>
+      <option value="7">7:00 AM</option>
+      <option value="8">8:00 AM</option>
+      <option value="9">9:00 AM</option>
+      <option value="10">10:00 AM</option>
+      <option value="11">11:00 AM</option>
+      <option value="12">12:00 PM</option>
+      <option value="13">1:00 PM</option>
+      <option value="14">2:00 PM</option>
+      <option value="15">3:00 PM</option>
+      <option value="16">4:00 PM</option>
+      <option value="17">5:00 PM</option>
+      <option value="18">6:00 PM</option>
+      <option value="19">7:00 PM</option>
+      <option value="20">8:00 PM</option>
+      <option value="21">9:00 PM</option>
+      <option value="22">10:00 PM</option>
+      <option value="23">11:00 PM</option>
+    </select>
+    <div id="d2">
+      <p3> You can change the hour the waves are measured at each day by using the above button.</p3>
+    </div>
+
+
+
+    <div id="bar-chart"></div>
+    <div id="d2">
+      <p3> You can change the buoy that is measured using the button below. The hour dropdown also changes this visualization too.
+      </p3>
+    </div>
+    <br>
+    <label for="buoyDropdown">Select Buoy:</label>
+    <select id="buoyDropdown">
+      <option value="028_santa_monica">santa monica</option>
+      <option value="045_oceanside_offshore">oceanside offshore</option>
+      <option value="073_scripss_pier">scripss pier</option>
+      <option value="100_torrey_pines_outer">torrey pines outer</option>
+      <option value="153_del_mar_nearshore">del mar nearshore</option>
+      <option value="155_imperial_beach">imperial beach</option>
+      <option value="191_point_loma_south">point loma south</option>
+      <option value="220_mission_bay_west">mission bay west</option>
+      <option value="215_long_beach_channel">long beach channel</option>
+    </select>
+    <div id="p1">
+      <br><br>
+      <p3> Top 70 Countries Immigrating to US in 2020 <br>Distanced from US by # Immigrating
+      </p3>
+    </div>
+    <br>
+    <div id="worldMap">
+      <svg id="mapSvg"></svg>
+    </div>
+    
+    <div id="d2">
+      <p3> As the visualization shows, the US has people from many countries, mainly Mexico, India, China, and the Dominican Republic. They bring their own surfing traditions, styles, and perspectives which influence our surfing culture and makes it what it is today. 
+        </p3>
+    </div>
+    <br><br><br>
+
+  </div>
+
+  
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+  <script type="text/javascript" src="app.js">
+  </script>  
+</body>
+</html>
