@@ -161,7 +161,6 @@ window.onload = function() {
   setTimeout(function() {
       createChart();
   }, 500);
-  createMap();
   
 
   let hourDropdown = document.getElementById('hourDropdown');
@@ -288,76 +287,5 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .attr("width", xScale.bandwidth())
     .attr("height", d => chartHeight - yScale(d.waveHeight))
     .attr("fill", "steelblue");
-}
-
-function createMap() {
-  const Width = 1000;
-  const Height = 500;
-
-  const worldMap = d3.select('#mapSvg');
-  const svg = worldMap.attr('width', Width).attr('height', Height);
-
-  parseCSV("immigration.csv", (data) => {
-    data.sort((a, b) => b.tot2020 - a.tot2020);
-    const dataTop = data.slice(0, 70);
-
-    const tot2020Sum = dataTop.reduce((sum, d) => sum + parseInt(d.tot2020), 0);
-  
-    const usData = { country: 'US', tot2020: 100000000 };
-    const dataWithUS = [usData].concat(dataTop);
-
-    const links = dataWithUS.map(d => ({
-      source: 'US',
-      target: d.country,
-      value: +d.tot2020
-    }));
-
-    const simulation = d3.forceSimulation()
-  .force("link", d3.forceLink()
-    .id(d => d.country)
-    .distance(d => 100 / d.value)
-  )
-  .force("charge", d3.forceManyBody().strength(-900))
-  .force("center", d3.forceCenter(Width/2, Height/2));
-
-    const link = svg.selectAll(".link")
-      .data(links)
-      .enter().append("line")
-      .attr("class", "link")
-      .attr("stroke", "papayawhip")
-      .attr("stroke-width", d => Math.sqrt(d.value) / 10);
-
-    const node = svg.selectAll(".node")
-      .data(dataWithUS)
-      .enter().append("g")
-      .attr("class", "node");
-
-    node.append("circle")
-      .attr("class", "circle")
-      .attr("r", 10)
-      .attr("fill", "lightblue")
-      .attr("stroke","steelblue");
-
-    node.append("text")
-      .attr("class", "label")
-      .attr("text-anchor", "middle") 
-      .attr("dy", 5) 
-      .style("font-size", "12px") 
-      .style("font-weight", "bold") 
-      .text(d => d.country);
-
-    simulation.nodes(dataWithUS).on("tick", () => {
-      link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
-
-      node
-      .attr("transform", d => `translate(${d.x}, ${d.y})`);
-    });
-
-    simulation.force("link").links(links);
-  });
 }
 
