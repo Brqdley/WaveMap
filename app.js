@@ -96,10 +96,12 @@ window.onload = function() {
 
       data.forEach((d) => {
       const buoyLocation = locs[d.buoyName.split("_")[0]];
-      if (d.tempAir === null) {
-          color = "black";  
+      console.log(d.tempAir)
+      if (isNaN(d.tempAir)) {
+        fillColor = "rgba(0, 0, 0, 0)"; 
       } else {
           color = colorScale(d.tempAir);
+          console.log("OKK")
       }
         circle = L.circle([buoyLocation.lat, buoyLocation.long], {
         radius: d.waveHeight*800,
@@ -155,7 +157,7 @@ window.onload = function() {
     });
 
   }
-  const files=['028_santa_monica.csv', '045_oceanside_offshore.csv', '073_scripss_pier.csv', '100_torrey_pines_outer.csv', '153_del_mar_nearshore.csv', '155_imperial_beach.csv', '191_point_loma_south.csv', '220_mission_bay_west.csv','215_long_beach_channel.csv']
+  const files=['028_santa_monica.csv', '045_oceanside_offshore.csv', '073_scripps_pier.csv', '100_torrey_pines_outer.csv', '153_del_mar_nearshore.csv', '155_imperial_beach.csv', '191_point_loma_south.csv', '220_mission_bay_west.csv','215_long_beach_channel.csv']
   initializeSlider();
   processCSVFiles(files);
   setTimeout(function() {
