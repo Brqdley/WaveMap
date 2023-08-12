@@ -96,7 +96,6 @@ window.onload = function() {
 
       data.forEach((d) => {
       const buoyLocation = locs[d.buoyName.split("_")[0]];
-      console.log(d.tempAir)
       if (isNaN(d.tempAir)) {
         color = "rgba(0, 0, 0, 0)"; 
       } else {
