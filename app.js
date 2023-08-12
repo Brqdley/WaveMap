@@ -101,7 +101,6 @@ window.onload = function() {
         color = "rgba(0, 0, 0, 0)"; 
       } else {
           color = colorScale(d.tempAir);
-          console.log("OKK")
       }
         circle = L.circle([buoyLocation.lat, buoyLocation.long], {
         radius: d.waveHeight*800,
