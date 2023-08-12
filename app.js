@@ -98,7 +98,7 @@ window.onload = function() {
       const buoyLocation = locs[d.buoyName.split("_")[0]];
       console.log(d.tempAir)
       if (isNaN(d.tempAir)) {
-        fillColor = "rgba(0, 0, 0, 0)"; 
+        color = "rgba(0, 0, 0, 0)"; 
       } else {
           color = colorScale(d.tempAir);
           console.log("OKK")
