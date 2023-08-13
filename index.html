@@ -12,7 +12,6 @@
     }
 
     #legend {
-      position: absolute;
       top: 5%; 
       left: 85%; 
       max-width: 30%; 
@@ -119,14 +118,20 @@
       text-align: center;
     }
 
+    #average-bar-chart {
+      text-align: center;
+      margin-bottom: 100px;
+    }
+
 
     #buoyDropdown {
       font-size: 25px;
     }
 
     #hourDropdown {
-      margin-top: 30px;
+      margin-top: 10px;
       font-size: 25px;
+      text-align: center
     }
 
     label[for="hourDropdown"] {
@@ -160,44 +165,26 @@
     <p1>By: Bradley Nathanson</p1>
   </div>
   <div id="d2">
-    <p3>As someone who has lived near the Southern California coast my entire life, 
+    <p3>As someone who has surfed and lived near the Southern California coast my entire life, 
       I was curious to know the trends of the wave heights.
       Using data from CDIP, which is run by Scripps at UCSD,
       I displayed yearly trends. I decided to show the trends of 2021 for consistency and accuracy.
       <br><br>
-      You can find the code and data I used for this analysis on my GitHub repository: 
-     <a href="https://github.com/Brqdley/WaveMap/">https://github.com/Brqdley/WaveMap/</a>
+     The code and data I used for this analysis is on my GitHub repository: 
+     <a href="https://github.com/Brqdley/WaveMap/">github.com/Brqdley/WaveMap/</a>
 </p>
 
     </p3>
   </div>
   <br>
  
+  <div id="d2">
+    <p3> Use the button below to change the hour the waves are measured at each day, which changes all the visualizations. </p3>
+  </div>
   <div id = "d3">
     <br>
-    <br>
-    <p4> Play with the slider!
-    </p4>
-    <div id="slider-container"></div>
-    <br>
-    <br>
-
-    
-    <p3>Visualization of Wave Height and Ocean Temp Over 2021</p3>
-    <div id="visualization">
-      <div id="legend">
-        <h3>Legend</h3>
-        <div class="legend-item">
-          <div class="marker blueRed"></div>
-          <span>Ocean Temp</span>
-        </div>
-        <div class="legend-item">
-          <div class="marker waveHeight"></div>
-          <span>Wave Height</span>
-        </div>
-      </div>
-    </div>
-    <label for="hourDropdown">Select Hour:</label>
+    <p3>Select Hour: </p3><br>
+    <label for="hourDropdown"></label>
     <select id="hourDropdown">
       <option value="0">12:00 AM</option>
       <option value="1">1:00 AM</option>
@@ -224,10 +211,30 @@
       <option value="22">10:00 PM</option>
       <option value="23">11:00 PM</option>
     </select>
-    <div id="d2">
-      <p3> You can change the hour the waves are measured at each day by using the above button.</p3>
-    </div>
+    <br>
+    <br>
+    <p4> Play with the slider!
+    </p4>
+    <div id="slider-container"></div>
+    <br>
+    <br>
 
+    
+    <p3>Visualization of Wave Height and Ocean Temp Over 2021</p3>
+    <div id="visualization">
+      <div id="legend">
+        <h3>Legend</h3>
+        <div class="legend-item">
+          <div class="marker blueRed"></div>
+          <span>Ocean Temp</span>
+        </div>
+        <div class="legend-item">
+          <div class="marker waveHeight"></div>
+          <span>Wave Height</span>
+        </div>
+      </div>
+    </div>
+    
 
 
     <div id="bar-chart"></div>
@@ -250,6 +257,10 @@
     </select>
 
   </div>
+
+
+  <div id="average-bar-chart"></div>
+  
 
   
 

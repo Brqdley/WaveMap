@@ -2,6 +2,8 @@ window.onload = function() {
     window.scrollTo(0, 0);
   };
   var waveHeightDictionary = {};
+  var averageWaveHeightDictionary = {};
+  let averageWaveHeight= {}
   const file_dir = "data_input";
 
   const monthDict = {
@@ -45,27 +47,42 @@ window.onload = function() {
 
   function processCSVFiles(files,hour=8) {
     waveHeightDictionary = {};
+    averageWaveHeightDictionary = {};
     files.forEach((file) => {
       parseCSV(file, (data) => {
       data.forEach((row) => {
+          var YEAR = row["YEAR"];
+          var MO = row["MO"].toString().padStart(2, "0");
+          const DY = row["DY"].toString().padStart(2, "0");
+          const BUOY = row["BUOY"];
+          const Hs = row["Hs"]*3.28084;
+          const date = new Date(`${YEAR}-${MO}-${DY}`);
+          const waveHeight = parseFloat(Hs);
+          const tempAir = parseFloat(row["Ta"]);
+          const key = date.toISOString();
         if(((row.HR==hour) && (row.MN==30)) || ((row.HR==hour) && (row.MN==45))){
           if(row["Hs"]<10){
-            var YEAR = row["YEAR"];
-            var MO = row["MO"].toString().padStart(2, "0");
-            const DY = row["DY"].toString().padStart(2, "0");
-            const BUOY = row["BUOY"];
-            const Hs = row["Hs"]*3.28084;
-            const date = new Date(`${YEAR}-${MO}-${DY}`);
-            const waveHeight = parseFloat(Hs);
-            const tempAir = parseFloat(row["Ta"]);
-            const key = date.toISOString();
+            
 
+            
             if (!waveHeightDictionary[key]) {
               waveHeightDictionary[key] = [];
             }
+           
+
             waveHeightDictionary[key].push({ buoyName: BUOY, waveHeight: waveHeight, tempAir: tempAir });
           }
         } 
+        if(row.HR==hour && row["Hs"]<10){
+          if (!averageWaveHeightDictionary[key]) {
+            averageWaveHeightDictionary[key] = [];
+          }
+         
+  
+          averageWaveHeightDictionary[key].push({waveHeight: waveHeight});
+        }
+        
+
         });
         updateVisualization(selectedDate);
       });
@@ -137,7 +154,7 @@ window.onload = function() {
         min: new Date('2021-01-01').getTime(),
         max: new Date('2021-12-31').getTime(),
       },
-      start: new Date('2021-01-01').getTime(),
+      start: new Date('2021-01-02').getTime(),
       step: 24 * 60 * 60 * 1000,
       connect: true,
       tooltips: true,
@@ -150,7 +167,7 @@ window.onload = function() {
     });
 
     slider.on("slide", (values) => {
-      const selectedDate = new Date(+values[0]);
+      const selectedDate = new Date(+values[0]) ;
       updateVisualization(selectedDate);
     });
 
@@ -158,8 +175,10 @@ window.onload = function() {
   const files=['028_santa_monica.csv', '045_oceanside_offshore.csv', '073_scripps_pier.csv', '100_torrey_pines_outer.csv', '153_del_mar_nearshore.csv', '155_imperial_beach.csv', '191_point_loma_south.csv', '220_mission_bay_west.csv','215_long_beach_channel.csv']
   initializeSlider();
   processCSVFiles(files);
+
   setTimeout(function() {
       createChart();
+      createAverageChart();
   }, 500);
   
 
@@ -171,6 +190,7 @@ window.onload = function() {
     console.log('Selected hour:', selectedHour);
     setTimeout(function() {
       createChart();
+      createAverageChart();
     }, 500);
   });
 
@@ -205,6 +225,7 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const dates = Object.keys(waveHeightDictionary);
+  console.log(dates)
 
   const waveHeights = dates.map(date => {
     const data = waveHeightDictionary[date];
@@ -220,7 +241,7 @@ function createChart(selectedBuoy = "028_santa_monica") {
 
   chart
     .append("text")
-    .attr("x", svgWidth / 2)
+    .attr("x", chartWidth / 2)
     .attr("y", -margin.bottom*.2)
     .attr("text-anchor", "middle")
     .style("font-size", "30px")
@@ -241,12 +262,12 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .style("text-anchor", "middle")
     .style("font-size", "23px")
     .text("Time");
-    svg
-  .insert("rect", ":first-child")
-  .attr("width", chartWidth)
-  .attr("height", chartHeight)
-  .attr("fill", "#FAFAF9")
-  .attr("transform", `translate(${margin.left}, ${margin.top})`);
+  svg
+    .insert("rect", ":first-child")
+    .attr("width", chartWidth)
+    .attr("height", chartHeight)
+    .attr("fill", "#FAFAF9")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   
 
@@ -271,7 +292,7 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .attr("transform", "rotate(-45)")
     .style("font-size", "18px")
     .style("text-anchor", "end")
-    .text((d, i) => monthDict[i]);
+    .text((d, i) => monthDict[i+1]);
   chart.append("g")
     .call(yAxis)
     .selectAll("text")
@@ -289,3 +310,104 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .attr("fill", "steelblue");
 }
 
+function createAverageChart(selectedBuoy = "028_santa_monica") {
+  console.log(averageWaveHeightDictionary)
+  const svgWidth = 1400;
+  const svgHeight = 800;
+  const margin = { top: 150, right: 70, bottom: 100, left: 70 };
+  const chartWidth = svgWidth - margin.left - margin.right;
+  const chartHeight = svgHeight - margin.top - margin.bottom;
+  d3.select("#average-bar-chart svg").remove();
+
+  const svg = d3.select("#average-bar-chart")
+    .append("svg")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
+
+  const chart = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+  const averageWaveHeights = {};
+  for (const key in averageWaveHeightDictionary) {
+    const data = averageWaveHeightDictionary[key];
+    const totalWaveHeight = data.reduce((sum, entry) => sum + entry.waveHeight, 0);
+    const averageWaveHeight = totalWaveHeight / data.length;
+  
+    averageWaveHeights[key] = averageWaveHeight;
+  }
+  const dates = Object.keys(averageWaveHeights);
+  console.log(dates)
+
+  const xScale = d3.scaleBand()
+    .domain(dates)
+    .range([0, chartWidth])
+    .padding(0.1);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, d3.max(Object.values(averageWaveHeights))]) // Use Object.values to get the array of average wave heights
+    .range([chartHeight, 0]);
+  
+  const xAxis = d3.axisBottom(xScale)
+    .tickValues(dates.filter((d, i) => i % 30 === 0))
+    .tickFormat(d3.timeFormat("%B"));
+
+  const yAxis = d3.axisLeft(yScale);
+
+  chart.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(xAxis)
+    .selectAll("text")
+    .attr("transform", "rotate(-45)")
+    .style("font-size", "18px")
+    .style("text-anchor", "end");
+  
+  chart
+    .append("text")
+    .attr("x", chartWidth / 2)
+    .attr("y", -margin.bottom*.2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "30px")
+    .text(`All Buoys Wave Height Average Over 2021`);
+  chart
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x", 0 - svgHeight / 2 + margin.top)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-size", "23px")
+    .text("Wave Height (ft)");
+  
+  chart
+    .append("text")
+    .attr("x", svgWidth / 2.15)
+    .attr("y", svgHeight - margin.bottom*1.8)
+    .style("text-anchor", "middle")
+    .style("font-size", "23px")
+    .text("Time");
+
+  chart.append("g")
+    .call(yAxis)
+    .selectAll("text")
+    .style("font-size", "18px");
+
+  chart.append("g")
+    .attr("transform", `translate(0, ${chartHeight})`)
+    .call(xAxis)
+    .selectAll("text")
+    .attr("transform", "rotate(-45)")
+    .style("font-size", "18px")
+    .style("text-anchor", "end")
+    .text((d, i) => monthDict[i+1]);
+
+  chart.selectAll(".bar")
+    .data(Object.keys(averageWaveHeights).map(key => ({ date: key, averageWaveHeight: averageWaveHeights[key] })))
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", d => xScale(d.date))
+    .attr("y", d => yScale(d.averageWaveHeight))
+    .attr("width", xScale.bandwidth())
+    .attr("height", d => chartHeight - yScale(d.averageWaveHeight))
+    .attr("fill", "steelblue");
+}
