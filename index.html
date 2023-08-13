@@ -13,8 +13,9 @@
 
     #legend {
       position: absolute;
-      top: 940px;
-      right: 880px;
+      top: 5%; 
+      left: 85%; 
+      max-width: 30%; 
       text-align: right;
       max-width: 200px;
       z-index: 1000;
@@ -181,19 +182,21 @@
     <br>
     <br>
 
-    <div id="legend">
-      <h3>Legend</h3>
-      <div class="legend-item">
-        <div class="marker blueRed"></div>
-        <span>Air Temp</span>
-      </div>
-      <div class="legend-item">
-        <div class="marker waveHeight"></div>
-        <span>Wave Height</span>
+    
+    <p3>Visualization of Wave Height and Air Temp Over 2021</p3>
+    <div id="visualization">
+      <div id="legend">
+        <h3>Legend</h3>
+        <div class="legend-item">
+          <div class="marker blueRed"></div>
+          <span>Air Temp</span>
+        </div>
+        <div class="legend-item">
+          <div class="marker waveHeight"></div>
+          <span>Wave Height</span>
+        </div>
       </div>
     </div>
-    <p3>Visualization of Wave Height and Air Temp Over 2021</p3>
-    <div id="visualization"></div>
     <label for="hourDropdown">Select Hour:</label>
     <select id="hourDropdown">
       <option value="0">12:00 AM</option>
