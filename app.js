@@ -5,7 +5,7 @@ window.onload = function() {
   var averageWaveHeightDictionary = {};
   let averageWaveHeight= {}
   const file_dir = "data_input";
-
+  var zoom = 8;
   const monthDict = {
     1: "Jan.",
     2: "Feb.",
@@ -22,15 +22,15 @@ window.onload = function() {
   };
 
   const locs = {
-    '028': { lat: 33.85993, long: -118.64110 },
-    '215': {lat: 33.70033, long: -118.20067},
-    '045': { lat: 33.17942, long: -117.47128 },
-    '073': { lat: 32.866667, long: -117.256667 },
-    '100': { lat: 32.93000, long: -117.39000 },
-    '153': { lat: 32.95658, long: -117.27945 },
-    '155': { lat: 32.56968, long: -117.16895 },
-    '191': { lat: 32.51670, long: -117.42520 },
-    '220': { lat: 32.74942, long: -117.50169 }
+    '028_santa_monica': { lat: 33.85993, long: -118.64110 },
+    '215_long_beach_channel': {lat: 33.70033, long: -118.20067},
+    '045_oceanside_offshore': { lat: 33.17942, long: -117.47128 },
+    '073_scripps_pier': { lat: 32.866667, long: -117.256667 },
+    '100_torrey_pines_outer': { lat: 32.93000, long: -117.39000 },
+    '153_del_mar_nearshore': { lat: 32.95658, long: -117.27945 },
+    '155_imperial_beach': { lat: 32.56968, long: -117.16895 },
+    '191_point_loma_south': { lat: 32.51670, long: -117.42520 },
+    '220_mission_bay_west': { lat: 32.74942, long: -117.50169 }
   };
   let selectedDate = new Date('2021-01-02');
   const map = L.map("visualization");
@@ -100,10 +100,10 @@ window.onload = function() {
     const data = waveHeightDictionary[formattedDate];
 
     if (!map.hasLayer(circles)) {
-      map.setView([33.5, -117.8], 8);
+      map.setView([33.5, -117.8], zoom);
      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
-      maxZoom: 13
+      maxZoom: 30
     }).addTo(map)
       circles = L.featureGroup().addTo(map);
 
@@ -112,7 +112,7 @@ window.onload = function() {
     }
 
       data.forEach((d) => {
-      const buoyLocation = locs[d.buoyName.split("_")[0]];
+      const buoyLocation = locs[d.buoyName];
       if (isNaN(d.tempAir)) {
         color = "rgba(0, 0, 0, 0)"; 
       } else {
@@ -177,10 +177,20 @@ window.onload = function() {
   processCSVFiles(files);
 
   setTimeout(function() {
-      createChart();
+      geo();
+      if(d3.select("#bar-chart svg").empty()){
+        createChart()
+      }
       createAverageChart();
   }, 500);
   
+  let buoyDropdown = document.getElementById('buoyDropdown');
+  buoyDropdown.value = "028_santa_monica";
+  buoyDropdown.addEventListener('change', function() {
+    selectedBuoy = buoyDropdown.value;
+    console.log('Selected Buoy:', selectedBuoy);
+    createChart(selectedBuoy)
+  });
 
   let hourDropdown = document.getElementById('hourDropdown');
   hourDropdown.value = "8";
@@ -189,18 +199,12 @@ window.onload = function() {
     processCSVFiles(files,+selectedHour)
     console.log('Selected hour:', selectedHour);
     setTimeout(function() {
-      createChart();
+      createChart(selectedBuoy);
       createAverageChart();
     }, 500);
   });
 
-let buoyDropdown = document.getElementById('buoyDropdown');
-buoyDropdown.value = "028_santa_monica";
-buoyDropdown.addEventListener('change', function() {
-  selectedBuoy = buoyDropdown.value;
-  console.log('Selected Buoy:', selectedBuoy);
-  createChart(selectedBuoy)
-});
+
 
 d3.select('#hourDropdown')
 .style("margin-bottom","20px");
@@ -225,7 +229,6 @@ function createChart(selectedBuoy = "028_santa_monica") {
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
   const dates = Object.keys(waveHeightDictionary);
-  console.log(dates)
 
   const waveHeights = dates.map(date => {
     const data = waveHeightDictionary[date];
@@ -410,4 +413,36 @@ function createAverageChart(selectedBuoy = "028_santa_monica") {
     .attr("width", xScale.bandwidth())
     .attr("height", d => chartHeight - yScale(d.averageWaveHeight))
     .attr("fill", "steelblue");
+}
+
+function geo() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const userLat = position.coords.latitude;
+      const userLong = position.coords.longitude;
+      console.log(userLat,userLong)
+
+      // Find the closest buoy based on user's location
+      let closestBuoy = null;
+      let minDistance = Number.MAX_VALUE;
+      for (const buoyId in locs) {
+        const buoyLat = locs[buoyId].lat;
+        const buoyLong = locs[buoyId].long;
+        const distance = Math.sqrt(
+          (userLat - buoyLat) ** 2 + (userLong - buoyLong) ** 2
+        );
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestBuoy = buoyId;
+        }
+      }
+      zoom=11
+      map.setView([locs[closestBuoy].lat, locs[closestBuoy].long], zoom);
+      buoyDropdown.value = closestBuoy;
+      selectedBuoy = closestBuoy;
+      console.log(closestBuoy)
+      createChart(selectedBuoy);
+    });
+  }
 }
