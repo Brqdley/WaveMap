@@ -177,7 +177,6 @@ window.onload = function() {
   processCSVFiles(files);
 
   setTimeout(function() {
-      geo();
       if(d3.select("#bar-chart svg").empty()){
         createChart()
       }
@@ -446,3 +445,12 @@ function geo() {
     });
   }
 }
+
+document.getElementById("location-button").addEventListener("click", function() {
+  geo();
+    
+  if(d3.select("#bar-chart svg").empty()){
+    createChart()
+  }
+
+});
